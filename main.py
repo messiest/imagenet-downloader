@@ -4,12 +4,10 @@ import asyncio
 
 
 from wordnet.utils import get_wnid
-from imagenet.downloader import get_image_urls
+from imagenet.downloader import get_image_urls, download_images
 
 
 DATA_DIR = 'images/'
-
-SEARCH_URL = "http://www.image-net.org/api/text/imagenet.synset.geturls.getmapping?wnid=n0{}"
 
 
 def main(item, data_dir=DATA_DIR):
@@ -30,10 +28,11 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
     item = args.item
-    print("ITEM", item)
-    # main(item)
 
-    x = get_wnid(item)
-    print(x)
+    wnid = get_wnid(item)
 
-    # print(get_image_urls(item))
+    urls = get_image_urls(wnid)
+
+    loop = asyncio.get_event_loop()
+
+    download_images(loop, DATA_DIR, urls, item)
