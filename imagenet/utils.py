@@ -7,8 +7,15 @@ from nltk.corpus import wordnet as wn
 def get_wnid(term):
     assert isinstance(term, str), "Must pass string"
     syns = wn.synsets(term.lower())
-    syn = syns.pop(0)
-    print("{}: {}".format(term.capitalize(), syn.definition()))
+
+    d = {str(i+1): j for i, j in enumerate(syns)}
+    for k in d:
+        print('{} - {}: {}'.format(k, term.capitalize(), d[k].definition()))
+    choice = input("Choose word to search for: ")
+
+    # syn = syns.pop(0)
+    syn = d[choice]
+    print("{}: {}".format(term.capitalize(), d[k].definition()))
     wnid = syn.offset()
 
     return wnid

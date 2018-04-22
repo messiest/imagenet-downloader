@@ -20,8 +20,9 @@ def main(item, n=100, data_dir=DATA_DIR):
     wnid = get_wnid(item)
     if not os.path.exists(os.path.join(data_dir, item)):
         os.mkdir(os.path.join(data_dir, item))
+
     urls = get_image_urls(wnid)
-    pbar = tqdm(total=n, desc=item.capitalize())
+    pbar = tqdm(total=n, desc=item.capitalize(), unit='image')
     images = 0
     n = np.min((n, len(urls)))  # ensure number of images is attainable
     while images <= n and urls:
@@ -71,4 +72,7 @@ if __name__ == "__main__":
     item = args.item
     n = args.n
     dir = args.dir
+    if not os.path.exists(dir):
+        os.mkdir(dir)
+
     main(item, n, dir)
