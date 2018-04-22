@@ -1,9 +1,14 @@
+import os
 import requests
 import argparse
 
+from tqdm import tqdm
 import numpy as np
 
 from nltk.corpus import wordnet as wn
+
+
+DATA_DIR = 'images/'
 
 
 def get_wnid(term):
@@ -47,6 +52,39 @@ def get_image_urls(wnid, shuffle=False):
 def write_to_file(filename, content):
     with open(filename, 'wb') as f:
         f.write(content)
+
+
+def downloader(item, n=100, data_dir=DATA_DIR, file_size=50000, shuffle=False):
+    wnid = get_wnid(item)
+    if not os.path.exists(os.path.join(data_dir, item)):
+        os.mkdir(os.path.join(data_dir, item))
+
+    urls = get_image_urls(wnid, shuffle=shuffle)
+    pbar = tqdm(total=n, desc=item.capitalize(), unit='image')
+    images = 0
+    n = np.min((n, len(urls)))  # ensure number of images is attainable
+    while images <= n and urls:
+        url = urls.pop(0)
+        file_name = url.split('/')[-1]
+        file_path = os.path.join(data_dir, item, file_name)
+        try:
+            image = requests.get(url, allow_redirects=False, timeout=2)
+        except Exception as e:
+            continue
+
+        # error handling
+        headers = image.headers
+        if image.status_code != 200:
+            continue
+        elif headers['Content-Type'] != 'image/jpeg':
+            continue
+        elif int(headers['Content-Length']) < file_size:  # only files > 50kb
+            continue
+        else:
+            write_to_file(file_path, image.content)
+            pbar.update()
+            images += 1
+    pbar.close()
 
 
 if __name__ == "__main__":
