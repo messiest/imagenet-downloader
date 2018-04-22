@@ -46,6 +46,7 @@ def main(item, n=100, data_dir=DATA_DIR, file_size=50000, shuffle=False):
             write_to_file(file_path, image.content)
             pbar.update()
             images += 1
+    pbar.close()
 
 
 if __name__ == "__main__":
