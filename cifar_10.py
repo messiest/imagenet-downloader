@@ -4,21 +4,29 @@ import argparse
 from imagenet.utils import downloader
 
 
-DATA_DIR = 'images/'
+DATA_DIR = 'images/cifar10'
+
+CIFAR10 = [
+    'airplane',
+    'automobile',
+    'bird',
+    'cat',
+    'deer',
+    'dog',
+    'frog',
+    'horse',
+    'ship',
+    'truck',
+]
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        'item',
-        help='image to download images of',
-        type=str,
-    )
-    parser.add_argument(
         '-n',
         help='number of images to download',
         type=int,
-        default=100,
+        default=250,
     )
     parser.add_argument(
         '-dir',
@@ -40,7 +48,6 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-    item = args.item
     n = args.n
     dir = args.dir
     size = args.size
@@ -49,4 +56,5 @@ if __name__ == "__main__":
     if not os.path.exists(dir):
         os.mkdir(dir)
 
-    downloader(item, n, data_dir=dir, file_size=size, shuffle=shuffle, user_input=True)
+    for item in CIFAR10:
+        downloader(item, n, data_dir=dir, user_input=False)

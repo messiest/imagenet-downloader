@@ -11,16 +11,19 @@ from nltk.corpus import wordnet as wn
 DATA_DIR = 'images/'
 
 
-def get_wnid(term):
+def get_wnid(term, user=False):
     assert isinstance(term, str), "Must pass string"
     syns = wn.synsets(term.lower())
-    print(term.capitalize(), ":")
-    d = {str(i+1): j for i, j in enumerate(syns)}
-    for k in d:
-        print('\t{}) {}'.format(k, d[k].definition()))
-    choice = input("Choose word to search for: ")
-    assert choice in d.keys(), "You must choose from the definitions above."
-    syn = d[choice]
+    if user:
+        print(term.capitalize(), ":")
+        d = {str(i+1): j for i, j in enumerate(syns)}
+        for k in d:
+            print('\t{}) {}'.format(k, d[k].definition()))
+        choice = input("Choose word to search for: ")
+        assert choice in d.keys(), "You must choose from the definitions above."
+        syn = d[choice]
+    else:
+        syn = syns.pop(0)
     wnid = syn.offset()
 
     return wnid
@@ -54,8 +57,8 @@ def write_to_file(filename, content):
         f.write(content)
 
 
-def downloader(item, n=100, data_dir=DATA_DIR, file_size=50000, shuffle=False):
-    wnid = get_wnid(item)
+def downloader(item, n=100, data_dir=DATA_DIR, file_size=50000, shuffle=False, user_input=False):
+    wnid = get_wnid(item, user_input)
     if not os.path.exists(os.path.join(data_dir, item)):
         os.mkdir(os.path.join(data_dir, item))
 
@@ -74,16 +77,19 @@ def downloader(item, n=100, data_dir=DATA_DIR, file_size=50000, shuffle=False):
 
         # error handling
         headers = image.headers
-        if image.status_code != 200:
+        try:
+            if image.status_code != 200:
+                continue
+            elif headers['Content-Type'] != 'image/jpeg':
+                continue
+            elif int(headers['Content-Length']) < file_size:  # min file size
+                continue
+            else:
+                write_to_file(file_path, image.content)
+                pbar.update()
+                images += 1
+        except:
             continue
-        elif headers['Content-Type'] != 'image/jpeg':
-            continue
-        elif int(headers['Content-Length']) < file_size:  # only files > 50kb
-            continue
-        else:
-            write_to_file(file_path, image.content)
-            pbar.update()
-            images += 1
     pbar.close()
 
 
