@@ -1,10 +1,6 @@
 import os
 import argparse
 
-import requests
-import numpy as np
-from tqdm import tqdm
-
 from imagenet.utils import downloader
 
 
