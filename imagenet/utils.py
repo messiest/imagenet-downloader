@@ -1,21 +1,21 @@
 import requests
 import argparse
 
+import numpy as np
+
 from nltk.corpus import wordnet as wn
 
 
 def get_wnid(term):
     assert isinstance(term, str), "Must pass string"
     syns = wn.synsets(term.lower())
-
+    print(term.capitalize(), ":")
     d = {str(i+1): j for i, j in enumerate(syns)}
     for k in d:
-        print('{} - {}: {}'.format(k, term.capitalize(), d[k].definition()))
+        print('\t{}) {}'.format(k, d[k].definition()))
     choice = input("Choose word to search for: ")
-
-    # syn = syns.pop(0)
+    assert choice in d.keys(), "You must choose from the definitions above."
     syn = d[choice]
-    print("{}: {}".format(term.capitalize(), d[k].definition()))
     wnid = syn.offset()
 
     return wnid
