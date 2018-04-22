@@ -16,7 +16,7 @@ def write_to_file(filename, content):
         f.write(content)
 
 
-def main(item, n=100, data_dir=DATA_DIR):
+def main(item, n=100, data_dir=DATA_DIR, file_size=50000):
     wnid = get_wnid(item)
     if not os.path.exists(os.path.join(data_dir, item)):
         os.mkdir(os.path.join(data_dir, item))
@@ -42,7 +42,7 @@ def main(item, n=100, data_dir=DATA_DIR):
         elif headers['Content-Type'] != 'image/jpeg':
             # print("\tFILE TYPE ERROR {}: {}".format(headers['Content-Type'], url))
             continue
-        elif int(headers['Content-Length']) < 50000:  # only files > 50kb
+        elif int(headers['Content-Length']) < file_size:  # only files > 50kb
             # print("\tFILE SIZE ERROR {}: {}".format(headers['Content-Length'], url))
             continue
         else:
@@ -68,11 +68,18 @@ if __name__ == "__main__":
         type=str,
         default=DATA_DIR,
     )
+    parser.add_argument(
+        '-size',
+        type=int,
+        default=50000,
+    )
     args = parser.parse_args()
     item = args.item
     n = args.n
     dir = args.dir
+    size = args.size
+
     if not os.path.exists(dir):
         os.mkdir(dir)
 
-    main(item, n, dir)
+    main(item, n, data_dir=dir, file_size=size)
