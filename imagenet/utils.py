@@ -57,13 +57,13 @@ def write_to_file(filename, content):
         f.write(content)
 
 
-def downloader(item, n=100, data_dir=DATA_DIR, file_size=50000, shuffle=False, user_input=False):
+def downloader(item, n=100, data_dir=DATA_DIR, file_size=50000, timeout=2, shuffle=False, user_input=False):
     wnid = get_wnid(item, user_input)
     if not os.path.exists(os.path.join(data_dir, item)):
         os.mkdir(os.path.join(data_dir, item))
 
     urls = get_image_urls(wnid, shuffle=shuffle)
-    pbar = tqdm(total=n, desc=item.capitalize(), unit='image')
+    pbar = tqdm(total=n, desc="Downloading {} Images".format(item.capitalize()), leave=True, unit='image')
     images = 0
     n = np.min((n, len(urls)))  # ensure number of images is attainable
     while images <= n and urls:
@@ -71,18 +71,22 @@ def downloader(item, n=100, data_dir=DATA_DIR, file_size=50000, shuffle=False, u
         file_name = url.split('/')[-1]
         file_path = os.path.join(data_dir, item, file_name)
         try:
-            image = requests.get(url, allow_redirects=False, timeout=2)
+            image = requests.get(url, allow_redirects=False, timeout=timeout)
         except Exception as e:
+            tqdm.write("{} | {}".format(str(e.__doc__), url))
             continue
 
         # error handling
         headers = image.headers
         try:
             if image.status_code != 200:
+                tqdm.write("connection error {} | {}".format(image.status_code, url))
                 continue
             elif headers['Content-Type'] != 'image/jpeg':
+                tqdm.write("file type error {} | {}".format(headers['Content-Type'], url))
                 continue
             elif int(headers['Content-Length']) < file_size:  # min file size
+                tqdm.write("file size error {} | {}".format(headers['Content-Length'], url))
                 continue
             else:
                 write_to_file(file_path, image.content)

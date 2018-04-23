@@ -33,6 +33,12 @@ if __name__ == "__main__":
         default=50,
     )
     parser.add_argument(
+        '-timeout',
+        help='timeout for url request',
+        type=int,
+        default=2,
+    )
+    parser.add_argument(
         '-shuffle',
         help='randomize image urls for download',
         type=bool,
@@ -44,9 +50,18 @@ if __name__ == "__main__":
     n = args.n
     dir = args.dir
     size = args.size
+    timeout = args.timeout
     shuffle = args.shuffle * 1000  # to convert to kb
 
     if not os.path.exists(dir):
         os.mkdir(dir)
 
-    downloader(item, n, data_dir=dir, file_size=size, shuffle=shuffle, user_input=True)
+    downloader(
+        item,
+        n,
+        data_dir=dir,
+        file_size=size,
+        timeout=timeout,
+        shuffle=shuffle,
+        user_input=True
+    )
