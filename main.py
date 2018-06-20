@@ -1,11 +1,13 @@
+#!/usr/bin/env python3
 import os
 import argparse
 import requests
 
 from tqdm import tqdm
 import numpy as np
-
 from nltk.corpus import wordnet as wn
+
+# from imagenet.utils import downloader
 
 
 DATA_DIR = 'images/'
@@ -73,7 +75,7 @@ def downloader(item, n=100, data_dir=DATA_DIR, file_size=50000, timeout=2, shuff
         try:
             image = requests.get(url, allow_redirects=False, timeout=timeout)
         except Exception as e:
-            tqdm.write("{} | {}".format(str(e.__doc__), url))
+            # tqdm.write("{} | {}".format(str(e.__doc__), url))
             continue
 
         # error handling
@@ -101,7 +103,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
         'item',
-        help='image to download images of',
+        help='object to download images of',
         type=str,
     )
     parser.add_argument(
@@ -129,27 +131,26 @@ if __name__ == "__main__":
         default=2,
     )
     parser.add_argument(
-        '-shuffle',
+        '--shuffle',
         help='randomize image urls for download',
-        type=bool,
-        default=False,
+        action='store_true',
     )
 
     args = parser.parse_args()
     item = args.item
     n = args.n
-    dir = args.dir
-    size = args.size
+    dir_ = args.dir
+    size = args.size * 1000  # to convert to kb
     timeout = args.timeout
-    shuffle = args.shuffle * 1000  # to convert to kb
+    shuffle = args.shuffle
 
-    if not os.path.exists(dir):
-        os.mkdir(dir)
+    if not os.path.exists(dir_):
+        os.mkdir(dir_)
 
     downloader(
         item,
         n,
-        data_dir=dir,
+        data_dir=dir_,
         file_size=size,
         timeout=timeout,
         shuffle=shuffle,
